@@ -1,0 +1,3285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>knowledge Quiz App</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f4f4f4;
+    color:#333;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    transition:.3s;
+}
+
+.dark{
+    background:#121212;
+    color:#fff;
+}
+
+.container{
+    width:100%;
+    max-width:700px;
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 0 15px rgba(0,0,0,.2);
+}
+
+.dark .container{
+    background:#1f1f1f;
+}
+
+h1,h2,h3{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+select,input,button{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+button{
+    cursor:pointer;
+    background:#3498db;
+    color:white;
+    border:none;
+    font-size:16px;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+#themeBtn{
+    background:#2c3e50;
+}
+
+.hide{
+    display:none;
+}
+
+.progress-container{
+    width:100%;
+    height:12px;
+    background:#ddd;
+    border-radius:20px;
+    overflow:hidden;
+    margin:15px 0;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:#27ae60;
+    transition:.3s;
+}
+
+.option{
+    display:block;
+    width:100%;
+    margin:10px 0;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#3498db;
+    color:white;
+    cursor:pointer;
+}
+
+.option:hover{
+    opacity:.9;
+}
+
+.correct{
+    background:green !important;
+}
+
+.wrong{
+    background:red !important;
+}
+
+.info{
+    display:flex;
+    justify-content:space-between;
+    margin:10px 0;
+    font-weight:bold;
+}
+
+#leaderboard p{
+    padding:5px;
+    border-bottom:1px solid #ccc;
+}
+
+@media(max-width:600px){
+    .info{
+        flex-direction:column;
+        gap:8px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<button id="themeBtn">🌙 Toggle Dark Mode</button>
+
+<div id="startScreen">
+
+<h1>QUIZZAP</h1>
+
+<input type="text" id="playerName" placeholder="Enter your name">
+
+<select id="category">
+    <option value="JavaScript">JavaScript</option>
+    <option value="HTML">HTML</option>
+    <option value="CSS">CSS</option>
+    <option value="Python">Python</option>
+    <option value="Java">Java</option>
+    <option value="CProgramming">C Programming</option>
+    <option value="React">React</option>
+    <option value="CyberSecurity">Cyber Security</option>
+    <option value="History">History</option>
+    <option value="CPP">CPP</option>
+    <option value="SQL">SQL</option>
+    <option value="Node.js">Nodejs</option>
+    <option value="DataStructures">DataStructures</option>
+    <option value="ArtificialIntelligence">ArtificialIntelligence</option>
+    <option value="ComputerFundamentals">ComputerFundamentals</option>
+    <option value="GeneralKnowledge">General Knowledge</option>
+</select>
+
+<select id="difficulty">
+<option value="Easy">Easy</option>
+<option value="Medium">Medium</option>
+<option value="Hard">Hard</option>
+</select>
+
+<button onclick="startQuiz()">Start Quiz</button>
+
+<h3>Leaderboard</h3>
+<div id="leaderboard"></div>
+
+</div>
+
+<div id="quizScreen" class="hide">
+
+<div class="info">
+<span id="questionCount"></span>
+<span id="timer">Time: 15s</span>
+<span id="scoreText">Score: 0</span>
+</div>
+
+<div class="progress-container">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+<h2 id="question"></h2>
+
+<div id="answers"></div>
+
+<button id="nextBtn" class="hide">Next Question</button>
+
+</div>
+
+<div id="resultScreen" class="hide">
+<h2>Quiz Completed 🎉</h2>
+<h3 id="finalScore"></h3>
+
+<button onclick="location.reload()">Play Again</button>
+</div>
+
+</div>
+
+<script>
+const quizData = {
+
+JavaScript: [
+{
+question:"Which keyword declares a variable?",
+options:["let","style","html","css"],
+answer:"let",
+difficulty:"Easy"
+},
+{
+question:"Which method converts JSON string to object?",
+options:["parse","stringify","convert","json"],
+answer:"parse",
+difficulty:"Medium"
+},
+{
+question:"What is closure?",
+options:["Function","Loop","Class","Array"],
+answer:"Function",
+difficulty:"Hard"
+},
+{
+question:"Which symbol is used for comments?",
+options:["//","<!-- -->","##","**"],
+answer:"//",
+difficulty:"Easy"
+},
+{
+question:"Which company created JavaScript?",
+options:["Netscape","Google","Microsoft","Apple"],
+answer:"Netscape",
+difficulty:"Medium"
+},
+{
+question:"Which method adds an item to an array?",
+options:["push()","add()","append()","insert()"],
+answer:"push()",
+difficulty:"Easy"
+}
+],
+
+HTML: [
+{
+question:"HTML stands for?",
+options:[
+"Hyper Text Markup Language",
+"Home Tool Markup Language",
+"Hyper Text Machine Language",
+"None"
+],
+answer:"Hyper Text Markup Language",
+difficulty:"Easy"
+},
+{
+question:"Which tag creates a hyperlink?",
+options:["a","link","href","url"],
+answer:"a",
+difficulty:"Medium"
+},
+{
+question:"Which tag inserts an image?",
+options:["img","image","src","picture"],
+answer:"img",
+difficulty:"Easy"
+},
+{
+question:"Which tag creates a table row?",
+options:["tr","td","th","table"],
+answer:"tr",
+difficulty:"Medium"
+},
+{
+question:"Semantic HTML improves?",
+options:[
+"Accessibility",
+"Speed only",
+"Database",
+"Server"
+],
+answer:"Accessibility",
+difficulty:"Hard"
+}
+],
+
+CSS: [
+{
+question:"Property for text color?",
+options:["color","font-color","text-color","paint"],
+answer:"color",
+difficulty:"Easy"
+},
+{
+question:"Flexbox is used for?",
+options:[
+"Layout",
+"Database",
+"Animation",
+"Backend"
+],
+answer:"Layout",
+difficulty:"Medium"
+},
+{
+question:"Which unit is relative?",
+options:["em","px","cm","mm"],
+answer:"em",
+difficulty:"Hard"
+},
+{
+question:"Which property changes background?",
+options:[
+"background",
+"bgcolor",
+"color",
+"paint"
+],
+answer:"background",
+difficulty:"Easy"
+},
+{
+question:"Which property creates rounded corners?",
+options:[
+"border-radius",
+"radius",
+"corner",
+"round"
+],
+answer:"border-radius",
+difficulty:"Medium"
+}
+],
+
+Python: [
+{
+question:"Python was created by?",
+options:[
+"Guido van Rossum",
+"James Gosling",
+"Dennis Ritchie",
+"Mark Zuckerberg"
+],
+answer:"Guido van Rossum",
+difficulty:"Easy"
+},
+{
+question:"Which keyword defines a function?",
+options:["def","function","fun","define"],
+answer:"def",
+difficulty:"Easy"
+},
+{
+question:"Which data type stores True/False?",
+options:["Boolean","String","Integer","Float"],
+answer:"Boolean",
+difficulty:"Medium"
+},
+{
+question:"Which symbol starts a comment?",
+options:["#","//","<!--","**"],
+answer:"#",
+difficulty:"Easy"
+},
+{
+question:"What is the output type of input()?",
+options:["String","Integer","Float","Boolean"],
+answer:"String",
+difficulty:"Hard"
+}
+],
+
+Java: [
+{
+question:"Java was developed by?",
+options:[
+"Sun Microsystems",
+"Google",
+"Microsoft",
+"IBM"
+],
+answer:"Sun Microsystems",
+difficulty:"Easy"
+},
+{
+question:"Which method starts execution?",
+options:[
+"main()",
+"start()",
+"run()",
+"execute()"
+],
+answer:"main()",
+difficulty:"Easy"
+},
+{
+question:"Java is?",
+options:[
+"Object-Oriented",
+"Database",
+"Operating System",
+"Browser"
+],
+answer:"Object-Oriented",
+difficulty:"Medium"
+},
+{
+question:"Which keyword inherits a class?",
+options:[
+"extends",
+"inherits",
+"implements",
+"super"
+],
+answer:"extends",
+difficulty:"Hard"
+},
+{
+question:"Which package is imported automatically?",
+options:[
+"java.lang",
+"java.util",
+"java.io",
+"java.net"
+],
+answer:"java.lang",
+difficulty:"Hard"
+}
+],
+
+GeneralKnowledge: [
+{
+question:"Capital of India?",
+options:[
+"New Delhi",
+"Mumbai",
+"Chennai",
+"Kolkata"
+],
+answer:"New Delhi",
+difficulty:"Easy"
+},
+{
+question:"Largest planet?",
+options:[
+"Jupiter",
+"Earth",
+"Mars",
+"Venus"
+],
+answer:"Jupiter",
+difficulty:"Easy"
+},
+{
+question:"Who wrote Hamlet?",
+options:[
+"William Shakespeare",
+"Charles Dickens",
+"Tolkien",
+"Homer"
+],
+answer:"William Shakespeare",
+difficulty:"Medium"
+},
+{
+question:"Fastest land animal?",
+options:[
+"Cheetah",
+"Lion",
+"Tiger",
+"Horse"
+],
+answer:"Cheetah",
+difficulty:"Easy"
+},
+{
+question:"Which country hosted the 2024 Olympics?",
+options:[
+"France",
+"Japan",
+"USA",
+"China"
+],
+answer:"France",
+difficulty:"Hard"
+},
+{
+question:"Smallest continent?",
+options:[
+"Australia",
+"Europe",
+"Africa",
+"Antarctica"
+],
+answer:"Australia",
+difficulty:"Medium"
+}
+],
+CProgramming: [
+
+/* ---------- Easy (10) ---------- */
+
+{
+question:"Who developed the C programming language?",
+options:["Dennis Ritchie","James Gosling","Bjarne Stroustrup","Guido van Rossum"],
+answer:"Dennis Ritchie",
+difficulty:"Easy"
+},
+{
+question:"C language was developed at?",
+options:["Bell Labs","Microsoft","IBM","Google"],
+answer:"Bell Labs",
+difficulty:"Easy"
+},
+{
+question:"Which function is the starting point of every C program?",
+options:["main()","start()","init()","run()"],
+answer:"main()",
+difficulty:"Easy"
+},
+{
+question:"Which symbol ends a C statement?",
+options:[";"," :",".",","],
+answer:";",
+difficulty:"Easy"
+},
+{
+question:"Which header file is used for printf()?",
+options:["stdio.h","stdlib.h","math.h","string.h"],
+answer:"stdio.h",
+difficulty:"Easy"
+},
+{
+question:"Which function displays output on the screen?",
+options:["printf()","scanf()","display()","print()"],
+answer:"printf()",
+difficulty:"Easy"
+},
+{
+question:"Which function reads input from the keyboard?",
+options:["scanf()","printf()","input()","read()"],
+answer:"scanf()",
+difficulty:"Easy"
+},
+{
+question:"Which symbol is used for single-line comments?",
+options:["//","/* */","#","<!-- -->"],
+answer:"//",
+difficulty:"Easy"
+},
+{
+question:"Which data type stores whole numbers?",
+options:["int","float","char","double"],
+answer:"int",
+difficulty:"Easy"
+},
+{
+question:"Which keyword declares a constant variable?",
+options:["const","constant","final","static"],
+answer:"const",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (10) ---------- */
+
+{
+question:"Which operator gives the remainder after division?",
+options:["%","/","*","+"],
+answer:"%",
+difficulty:"Medium"
+},
+{
+question:"Which loop executes at least once?",
+options:["do...while","for","while","foreach"],
+answer:"do...while",
+difficulty:"Medium"
+},
+{
+question:"Which library function calculates string length?",
+options:["strlen()","length()","size()","count()"],
+answer:"strlen()",
+difficulty:"Medium"
+},
+{
+question:"Which keyword is used to exit a loop?",
+options:["break","continue","exit","stop"],
+answer:"break",
+difficulty:"Medium"
+},
+{
+question:"Which keyword skips the current loop iteration?",
+options:["continue","break","skip","return"],
+answer:"continue",
+difficulty:"Medium"
+},
+{
+question:"Which operator is used to access a structure member?",
+options:[".","->","::",":"],
+answer:".",
+difficulty:"Medium"
+},
+{
+question:"Which function allocates dynamic memory?",
+options:["malloc()","calloc()","realloc()","All of these"],
+answer:"All of these",
+difficulty:"Medium"
+},
+{
+question:"Which header file contains malloc()?",
+options:["stdlib.h","stdio.h","string.h","math.h"],
+answer:"stdlib.h",
+difficulty:"Medium"
+},
+{
+question:"Which function compares two strings?",
+options:["strcmp()","compare()","equals()","strcompare()"],
+answer:"strcmp()",
+difficulty:"Medium"
+},
+{
+question:"Which keyword returns a value from a function?",
+options:["return","break","exit","continue"],
+answer:"return",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (10) ---------- */
+
+{
+question:"Which storage class keeps a variable alive throughout program execution?",
+options:["static","auto","register","extern"],
+answer:"static",
+difficulty:"Hard"
+},
+{
+question:"Which operator is used to get the address of a variable?",
+options:["&","*","%","@"],
+answer:"&",
+difficulty:"Hard"
+},
+{
+question:"Which operator is used to access the value stored at an address?",
+options:["*","&","->","."],
+answer:"*",
+difficulty:"Hard"
+},
+{
+question:"Which function releases dynamically allocated memory?",
+options:["free()","delete()","remove()","clear()"],
+answer:"free()",
+difficulty:"Hard"
+},
+{
+question:"Which function changes the size of allocated memory?",
+options:["realloc()","malloc()","calloc()","resize()"],
+answer:"realloc()",
+difficulty:"Hard"
+},
+{
+question:"Which preprocessor directive includes header files?",
+options:["#include","#define","#ifdef","#pragma"],
+answer:"#include",
+difficulty:"Hard"
+},
+{
+question:"Which storage class is the default for local variables?",
+options:["auto","static","extern","register"],
+answer:"auto",
+difficulty:"Hard"
+},
+{
+question:"What is a pointer?",
+options:[
+"A variable that stores an address",
+"A variable that stores text",
+"A function",
+"A loop"
+],
+answer:"A variable that stores an address",
+difficulty:"Hard"
+},
+{
+question:"Which keyword declares a structure?",
+options:["struct","class","record","object"],
+answer:"struct",
+difficulty:"Hard"
+},
+{
+question:"Which keyword is used to create a user-defined type alias?",
+options:["typedef","define","using","alias"],
+answer:"typedef",
+difficulty:"Hard"
+}
+
+],
+React: [
+
+/* ---------- Easy (10) ---------- */
+
+{
+question:"Who developed React?",
+options:["Facebook","Google","Microsoft","Apple"],
+answer:"Facebook",
+difficulty:"Easy"
+},
+{
+question:"React is mainly used for?",
+options:["Building User Interfaces","Database Management","Operating Systems","Game Engines"],
+answer:"Building User Interfaces",
+difficulty:"Easy"
+},
+{
+question:"Which file extension is commonly used with React components?",
+options:[".jsx",".java",".py",".css"],
+answer:".jsx",
+difficulty:"Easy"
+},
+{
+question:"Which command creates a new React app?",
+options:["npx create-react-app","npm install react","react new","create-react"],
+answer:"npx create-react-app",
+difficulty:"Easy"
+},
+{
+question:"Which keyword is used to define a React component?",
+options:["function","class","Both function and class","component"],
+answer:"Both function and class",
+difficulty:"Easy"
+},
+{
+question:"What does JSX stand for?",
+options:["JavaScript XML","Java Syntax Extension","JSON XML","JavaScript Extension"],
+answer:"JavaScript XML",
+difficulty:"Easy"
+},
+{
+question:"Which method renders a React component?",
+options:["render()","display()","show()","print()"],
+answer:"render()",
+difficulty:"Easy"
+},
+{
+question:"React components must return?",
+options:["JSX","HTML File","JSON","CSS"],
+answer:"JSX",
+difficulty:"Easy"
+},
+{
+question:"What symbol is used to embed JavaScript inside JSX?",
+options:["{}","()","[]","<>"],
+answer:"{}",
+difficulty:"Easy"
+},
+{
+question:"React applications are made of?",
+options:["Components","Tables","Classes Only","Modules"],
+answer:"Components",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (10) ---------- */
+
+{
+question:"Which hook is used to manage state?",
+options:["useState","useEffect","useRef","useMemo"],
+answer:"useState",
+difficulty:"Medium"
+},
+{
+question:"Which hook is used for side effects?",
+options:["useEffect","useState","useContext","useRef"],
+answer:"useEffect",
+difficulty:"Medium"
+},
+{
+question:"Props are?",
+options:["Read-only inputs","State variables","Functions","CSS files"],
+answer:"Read-only inputs",
+difficulty:"Medium"
+},
+{
+question:"State in React is?",
+options:["Mutable","Immutable","Static","None"],
+answer:"Mutable",
+difficulty:"Medium"
+},
+{
+question:"Which attribute is used instead of class in JSX?",
+options:["className","class","classname","cssClass"],
+answer:"className",
+difficulty:"Medium"
+},
+{
+question:"Which attribute is used for labels in JSX?",
+options:["htmlFor","for","labelFor","id"],
+answer:"htmlFor",
+difficulty:"Medium"
+},
+{
+question:"Which hook provides direct access to a DOM element?",
+options:["useRef","useState","useMemo","useReducer"],
+answer:"useRef",
+difficulty:"Medium"
+},
+{
+question:"React follows which type of data flow?",
+options:["One-way","Two-way","Circular","None"],
+answer:"One-way",
+difficulty:"Medium"
+},
+{
+question:"What is used to pass data from parent to child?",
+options:["Props","State","Context","Hooks"],
+answer:"Props",
+difficulty:"Medium"
+},
+{
+question:"Which hook shares data without prop drilling?",
+options:["useContext","useState","useRef","useMemo"],
+answer:"useContext",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (10) ---------- */
+
+{
+question:"Which hook is used for complex state management?",
+options:["useReducer","useState","useMemo","useRef"],
+answer:"useReducer",
+difficulty:"Hard"
+},
+{
+question:"React compares the Virtual DOM with the Real DOM using?",
+options:["Diffing","Compiling","Rendering","Parsing"],
+answer:"Diffing",
+difficulty:"Hard"
+},
+{
+question:"What is the Virtual DOM?",
+options:[
+"A lightweight copy of the Real DOM",
+"A database",
+"A browser",
+"A CSS engine"
+],
+answer:"A lightweight copy of the Real DOM",
+difficulty:"Hard"
+},
+{
+question:"Which hook memoizes computed values?",
+options:["useMemo","useState","useRef","useEffect"],
+answer:"useMemo",
+difficulty:"Hard"
+},
+{
+question:"Which hook memoizes callback functions?",
+options:["useCallback","useMemo","useEffect","useState"],
+answer:"useCallback",
+difficulty:"Hard"
+},
+{
+question:"What is React.Fragment used for?",
+options:[
+"Grouping elements without extra DOM nodes",
+"Creating routes",
+"Managing state",
+"Rendering images"
+],
+answer:"Grouping elements without extra DOM nodes",
+difficulty:"Hard"
+},
+{
+question:"Which prop uniquely identifies list items?",
+options:["key","id","index","value"],
+answer:"key",
+difficulty:"Hard"
+},
+{
+question:"Which package provides routing in React?",
+options:[
+"react-router-dom",
+"react-dom",
+"react-router",
+"react-navigation"
+],
+answer:"react-router-dom",
+difficulty:"Hard"
+},
+{
+question:"Which method updates component state in class components?",
+options:["setState()","updateState()","changeState()","modifyState()"],
+answer:"setState()",
+difficulty:"Hard"
+},
+{
+question:"React improves performance mainly by using?",
+options:[
+"Virtual DOM",
+"Direct DOM Manipulation",
+"Server Rendering Only",
+"CSS Optimization"
+],
+answer:"Virtual DOM",
+difficulty:"Hard"
+}
+
+],
+CyberSecurity: [
+
+/* ---------- Easy (1–5) ---------- */
+
+{
+question:"What does Cyber Security protect?",
+options:["Computers and Data","Cars","Roads","Buildings"],
+answer:"Computers and Data",
+difficulty:"Easy"
+},
+{
+question:"Which of these is a strong password?",
+options:["P@ssw0rd#2026","123456","password","abcdef"],
+answer:"P@ssw0rd#2026",
+difficulty:"Easy"
+},
+{
+question:"Which software protects a computer from viruses?",
+options:["Antivirus","Calculator","Browser","Media Player"],
+answer:"Antivirus",
+difficulty:"Easy"
+},
+{
+question:"What is phishing?",
+options:[
+"A fake attempt to steal personal information",
+"A programming language",
+"A search engine",
+"A database"
+],
+answer:"A fake attempt to steal personal information",
+difficulty:"Easy"
+},
+{
+question:"Which symbol usually indicates a secure website?",
+options:["Padlock Icon","Star","Heart","Triangle"],
+answer:"Padlock Icon",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (6–10) ---------- */
+
+{
+question:"What does VPN stand for?",
+options:[
+"Virtual Private Network",
+"Verified Public Network",
+"Virtual Personal Node",
+"Visual Private Network"
+],
+answer:"Virtual Private Network",
+difficulty:"Medium"
+},
+{
+question:"Which attack floods a server with excessive traffic?",
+options:["DDoS","SQL Injection","Phishing","Spoofing"],
+answer:"DDoS",
+difficulty:"Medium"
+},
+{
+question:"What is malware?",
+options:[
+"Malicious software",
+"Computer hardware",
+"Operating system",
+"Programming language"
+],
+answer:"Malicious software",
+difficulty:"Medium"
+},
+{
+question:"Which type of malware demands payment to unlock files?",
+options:["Ransomware","Spyware","Adware","Trojan"],
+answer:"Ransomware",
+difficulty:"Medium"
+},
+{
+question:"Two-Factor Authentication provides?",
+options:[
+"An extra layer of security",
+"Faster internet",
+"Extra storage",
+"Free antivirus"
+],
+answer:"An extra layer of security",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (11–15) ---------- */
+
+{
+question:"Which attack inserts malicious SQL commands into a database?",
+options:[
+"SQL Injection",
+"Cross-Site Scripting",
+"Brute Force",
+"Packet Sniffing"
+],
+answer:"SQL Injection",
+difficulty:"Hard"
+},
+{
+question:"Which attack executes malicious scripts in a user's browser?",
+options:[
+"Cross-Site Scripting (XSS)",
+"SQL Injection",
+"DDoS",
+"Phishing"
+],
+answer:"Cross-Site Scripting (XSS)",
+difficulty:"Hard"
+},
+{
+question:"What is encryption?",
+options:[
+"Converting data into a secure coded format",
+"Deleting files",
+"Compressing data",
+"Scanning viruses"
+],
+answer:"Converting data into a secure coded format",
+difficulty:"Hard"
+},
+{
+question:"Which protocol securely transfers web pages?",
+options:["HTTPS","HTTP","FTP","SMTP"],
+answer:"HTTPS",
+difficulty:"Hard"
+},
+{
+question:"What is a firewall?",
+options:[
+"A security system that filters network traffic",
+"A web browser",
+"An operating system",
+"A database"
+],
+answer:"A security system that filters network traffic",
+difficulty:"Hard"
+},
+{
+question:"What is a Trojan Horse in cybersecurity?",
+options:[
+"Malware disguised as legitimate software",
+"A firewall",
+"An antivirus",
+"A web browser"
+],
+answer:"Malware disguised as legitimate software",
+difficulty:"Medium"
+},
+{
+question:"Which malware can spread without user action?",
+options:["Worm","Trojan","Spyware","Adware"],
+answer:"Worm",
+difficulty:"Medium"
+},
+{
+question:"Spyware is designed to?",
+options:[
+"Secretly collect user information",
+"Speed up the computer",
+"Protect files",
+"Improve internet speed"
+],
+answer:"Secretly collect user information",
+difficulty:"Medium"
+},
+{
+question:"A botnet is a collection of?",
+options:[
+"Infected computers controlled remotely",
+"Secure servers",
+"Firewalls",
+"Databases"
+],
+answer:"Infected computers controlled remotely",
+difficulty:"Medium"
+},
+{
+question:"What is social engineering?",
+options:[
+"Manipulating people to reveal confidential information",
+"Building websites",
+"Writing code",
+"Installing software"
+],
+answer:"Manipulating people to reveal confidential information",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (21–30) ---------- */
+
+{
+question:"A Zero-Day vulnerability is?",
+options:[
+"A software flaw unknown to the vendor",
+"A deleted file",
+"A weak password",
+"A backup system"
+],
+answer:"A software flaw unknown to the vendor",
+difficulty:"Hard"
+},
+{
+question:"Which algorithm is commonly used for hashing passwords?",
+options:["SHA-256","HTTP","FTP","SMTP"],
+answer:"SHA-256",
+difficulty:"Hard"
+},
+{
+question:"What is the purpose of a digital certificate?",
+options:[
+"To verify the identity of a website or user",
+"To delete malware",
+"To compress files",
+"To increase internet speed"
+],
+answer:"To verify the identity of a website or user",
+difficulty:"Hard"
+},
+{
+question:"What does PKI stand for?",
+options:[
+"Public Key Infrastructure",
+"Private Key Internet",
+"Public Kernel Interface",
+"Protected Key Integration"
+],
+answer:"Public Key Infrastructure",
+difficulty:"Hard"
+},
+{
+question:"Which attack tries every possible password until one works?",
+options:[
+"Brute Force Attack",
+"Phishing",
+"DDoS",
+"SQL Injection"
+],
+answer:"Brute Force Attack",
+difficulty:"Hard"
+},
+{
+question:"A Man-in-the-Middle (MITM) attack allows an attacker to?",
+options:[
+"Intercept communication between two parties",
+"Delete hardware",
+"Create websites",
+"Repair networks"
+],
+answer:"Intercept communication between two parties",
+difficulty:"Hard"
+},
+{
+question:"Which authentication method requires two or more verification factors?",
+options:[
+"Multi-Factor Authentication (MFA)",
+"Single Sign-On",
+"Password Only",
+"Guest Login"
+],
+answer:"Multi-Factor Authentication (MFA)",
+difficulty:"Hard"
+},
+{
+question:"DNS spoofing is used to?",
+options:[
+"Redirect users to fake websites",
+"Speed up DNS",
+"Encrypt files",
+"Scan networks"
+],
+answer:"Redirect users to fake websites",
+difficulty:"Hard"
+},
+{
+question:"What is the purpose of penetration testing?",
+options:[
+"Identify security weaknesses before attackers do",
+"Increase internet speed",
+"Format hard drives",
+"Create viruses"
+],
+answer:"Identify security weaknesses before attackers do",
+difficulty:"Hard"
+},
+{
+question:"A security audit is performed to?",
+options:[
+"Evaluate an organization's security measures",
+"Install antivirus software",
+"Build websites",
+"Write programs"
+],
+answer:"Evaluate an organization's security measures",
+difficulty:"Hard"
+},
+],
+History: [
+
+/* ---------- Easy (1–5) ---------- */
+
+{
+question:"Who is known as the Father of the Nation in India?",
+options:["Mahatma Gandhi","Jawaharlal Nehru","Subhas Chandra Bose","Bhagat Singh"],
+answer:"Mahatma Gandhi",
+difficulty:"Easy"
+},
+{
+question:"Which monument was built by Shah Jahan?",
+options:["Taj Mahal","Qutub Minar","India Gate","Red Fort"],
+answer:"Taj Mahal",
+difficulty:"Easy"
+},
+{
+question:"Who was the first Prime Minister of India?",
+options:["Jawaharlal Nehru","Sardar Patel","Rajendra Prasad","Lal Bahadur Shastri"],
+answer:"Jawaharlal Nehru",
+difficulty:"Easy"
+},
+{
+question:"India became independent in which year?",
+options:["1947","1950","1945","1930"],
+answer:"1947",
+difficulty:"Easy"
+},
+{
+question:"Who discovered America in 1492?",
+options:["Christopher Columbus","Vasco da Gama","Marco Polo","Ferdinand Magellan"],
+answer:"Christopher Columbus",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (6–10) ---------- */
+
+{
+question:"Who founded the Maurya Empire?",
+options:["Chandragupta Maurya","Ashoka","Harsha","Akbar"],
+answer:"Chandragupta Maurya",
+difficulty:"Medium"
+},
+{
+question:"Which emperor embraced Buddhism after the Kalinga War?",
+options:["Ashoka","Akbar","Shivaji","Humayun"],
+answer:"Ashoka",
+difficulty:"Medium"
+},
+{
+question:"Who was the first Mughal emperor of India?",
+options:["Babur","Akbar","Humayun","Aurangzeb"],
+answer:"Babur",
+difficulty:"Medium"
+},
+{
+question:"The French Revolution began in which year?",
+options:["1789","1776","1815","1757"],
+answer:"1789",
+difficulty:"Medium"
+},
+{
+question:"Who was known as the Iron Man of India?",
+options:["Sardar Vallabhbhai Patel","Mahatma Gandhi","Jawaharlal Nehru","Subhas Chandra Bose"],
+answer:"Sardar Vallabhbhai Patel",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (11–15) ---------- */
+
+{
+question:"Which treaty ended World War I?",
+options:["Treaty of Versailles","Treaty of Paris","Treaty of Tordesillas","Treaty of Ghent"],
+answer:"Treaty of Versailles",
+difficulty:"Hard"
+},
+{
+question:"Who was the founder of the Gupta Empire?",
+options:["Sri Gupta","Samudragupta","Chandragupta II","Kumaragupta"],
+answer:"Sri Gupta",
+difficulty:"Hard"
+},
+{
+question:"The Battle of Plassey was fought in which year?",
+options:["1757","1764","1857","1707"],
+answer:"1757",
+difficulty:"Hard"
+},
+{
+question:"Who wrote the book 'Arthashastra'?",
+options:["Chanakya","Kalidasa","Valmiki","Banabhatta"],
+answer:"Chanakya",
+difficulty:"Hard"
+},
+{
+question:"Which civilization is famous for Mohenjo-daro and Harappa?",
+options:["Indus Valley Civilization","Mesopotamian Civilization","Egyptian Civilization","Roman Civilization"],
+answer:"Indus Valley Civilization",
+difficulty:"Hard"
+},
+/* ---------- Medium (16–20) ---------- */
+
+{
+question:"Who started the Quit India Movement?",
+options:[
+"Mahatma Gandhi",
+"Subhas Chandra Bose",
+"Bhagat Singh",
+"Jawaharlal Nehru"
+],
+answer:"Mahatma Gandhi",
+difficulty:"Medium"
+},
+{
+question:"The Dandi March took place in which year?",
+options:["1930","1920","1942","1919"],
+answer:"1930",
+difficulty:"Medium"
+},
+{
+question:"Who founded the Mughal Empire in India?",
+options:["Babur","Akbar","Humayun","Shah Jahan"],
+answer:"Babur",
+difficulty:"Medium"
+},
+{
+question:"Which battle marked the beginning of British rule in India?",
+options:[
+"Battle of Plassey",
+"Battle of Panipat",
+"Battle of Buxar",
+"Battle of Haldighati"
+],
+answer:"Battle of Plassey",
+difficulty:"Medium"
+},
+{
+question:"Who was popularly known as Netaji?",
+options:[
+"Subhas Chandra Bose",
+"Bhagat Singh",
+"Sardar Patel",
+"Bal Gangadhar Tilak"
+],
+answer:"Subhas Chandra Bose",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (21–30) ---------- */
+
+{
+question:"The Revolt of 1857 is also known as?",
+options:[
+"First War of Indian Independence",
+"Quit India Movement",
+"Non-Cooperation Movement",
+"Civil Disobedience Movement"
+],
+answer:"First War of Indian Independence",
+difficulty:"Hard"
+},
+{
+question:"Who was the last Mughal emperor?",
+options:[
+"Bahadur Shah Zafar",
+"Akbar",
+"Shah Jahan",
+"Aurangzeb"
+],
+answer:"Bahadur Shah Zafar",
+difficulty:"Hard"
+},
+{
+question:"The Battle of Buxar was fought in which year?",
+options:["1764","1757","1857","1707"],
+answer:"1764",
+difficulty:"Hard"
+},
+{
+question:"Who founded the Chola Empire?",
+options:[
+"Vijayalaya Chola",
+"Rajaraja Chola",
+"Rajendra Chola",
+"Karikala Chola"
+],
+answer:"Vijayalaya Chola",
+difficulty:"Hard"
+},
+{
+question:"Who built the Brihadeeswarar Temple?",
+options:[
+"Rajaraja Chola I",
+"Ashoka",
+"Harsha",
+"Krishnadevaraya"
+],
+answer:"Rajaraja Chola I",
+difficulty:"Hard"
+},
+{
+question:"The Renaissance began in which country?",
+options:[
+"Italy",
+"France",
+"Germany",
+"England"
+],
+answer:"Italy",
+difficulty:"Hard"
+},
+{
+question:"World War II ended in which year?",
+options:["1945","1944","1946","1939"],
+answer:"1945",
+difficulty:"Hard"
+},
+{
+question:"The United Nations was established in?",
+options:["1945","1919","1947","1950"],
+answer:"1945",
+difficulty:"Hard"
+},
+{
+question:"Who was the founder of the Vijayanagara Empire?",
+options:[
+"Harihara I and Bukka Raya I",
+"Krishnadevaraya",
+"Shivaji",
+"Pulakeshin II"
+],
+answer:"Harihara I and Bukka Raya I",
+difficulty:"Hard"
+},
+{
+question:"The Cold War was mainly between which two superpowers?",
+options:[
+"United States and Soviet Union",
+"India and China",
+"Britain and France",
+"Germany and Japan"
+],
+answer:"United States and Soviet Union",
+difficulty:"Hard"
+},
+],
+CPP: [
+
+/* ---------- Easy (1–5) ---------- */
+
+{
+question:"Who developed C++?",
+options:["Bjarne Stroustrup","Dennis Ritchie","James Gosling","Guido van Rossum"],
+answer:"Bjarne Stroustrup",
+difficulty:"Easy"
+},
+{
+question:"C++ is an extension of which language?",
+options:["C","Java","Python","Pascal"],
+answer:"C",
+difficulty:"Easy"
+},
+{
+question:"Which function is the entry point of a C++ program?",
+options:["main()","start()","run()","init()"],
+answer:"main()",
+difficulty:"Easy"
+},
+{
+question:"Which header file is used for cout and cin?",
+options:["iostream","stdio.h","stdlib.h","string"],
+answer:"iostream",
+difficulty:"Easy"
+},
+{
+question:"Which keyword declares a class?",
+options:["class","struct","object","define"],
+answer:"class",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (6–10) ---------- */
+
+{
+question:"Which operator is used with cout?",
+options:["<<",">>","==","&&"],
+answer:"<<",
+difficulty:"Medium"
+},
+{
+question:"Which operator is used with cin?",
+options:[">>","<<","=","+"],
+answer:">>",
+difficulty:"Medium"
+},
+{
+question:"Which keyword creates an object dynamically?",
+options:["new","malloc","create","alloc"],
+answer:"new",
+difficulty:"Medium"
+},
+{
+question:"Which keyword releases dynamically allocated memory?",
+options:["delete","free","remove","clear"],
+answer:"delete",
+difficulty:"Medium"
+},
+{
+question:"Which concept allows one function to have multiple forms?",
+options:["Polymorphism","Inheritance","Encapsulation","Abstraction"],
+answer:"Polymorphism",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (11–15) ---------- */
+
+{
+question:"Which OOP principle hides implementation details?",
+options:["Abstraction","Inheritance","Polymorphism","Overloading"],
+answer:"Abstraction",
+difficulty:"Hard"
+},
+{
+question:"Which OOP principle protects data from direct access?",
+options:["Encapsulation","Abstraction","Inheritance","Templates"],
+answer:"Encapsulation",
+difficulty:"Hard"
+},
+{
+question:"Which feature allows one class to inherit another?",
+options:["Inheritance","Polymorphism","Templates","Namespaces"],
+answer:"Inheritance",
+difficulty:"Hard"
+},
+{
+question:"Which keyword refers to the current object?",
+options:["this","self","current","object"],
+answer:"this",
+difficulty:"Hard"
+},
+{
+question:"Which function is automatically called when an object is created?",
+options:["Constructor","Destructor","main()","init()"],
+answer:"Constructor",
+difficulty:"Hard"
+},
+/* ---------- Medium (16–20) ---------- */
+
+{
+question:"Which function is automatically called when an object is destroyed?",
+options:["Destructor","Constructor","main()","delete()"],
+answer:"Destructor",
+difficulty:"Medium"
+},
+{
+question:"Which feature allows multiple functions with the same name but different parameters?",
+options:["Function Overloading","Inheritance","Templates","Recursion"],
+answer:"Function Overloading",
+difficulty:"Medium"
+},
+{
+question:"Which feature allows operators like '+' to work differently for user-defined types?",
+options:["Operator Overloading","Function Overriding","Templates","Inheritance"],
+answer:"Operator Overloading",
+difficulty:"Medium"
+},
+{
+question:"Which keyword defines a namespace?",
+options:["namespace","using","scope","package"],
+answer:"namespace",
+difficulty:"Medium"
+},
+{
+question:"Which keyword is used to handle exceptions?",
+options:["try","throw","catch","All of these"],
+answer:"All of these",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (21–30) ---------- */
+
+{
+question:"Which function is declared using the 'virtual' keyword?",
+options:["Virtual Function","Friend Function","Inline Function","Static Function"],
+answer:"Virtual Function",
+difficulty:"Hard"
+},
+{
+question:"A class containing at least one pure virtual function is called?",
+options:["Abstract Class","Static Class","Friend Class","Derived Class"],
+answer:"Abstract Class",
+difficulty:"Hard"
+},
+{
+question:"Which symbol is used to declare a pure virtual function?",
+options:["= 0","== 0","=> 0",":= 0"],
+answer:"= 0",
+difficulty:"Hard"
+},
+{
+question:"What is the Standard Template Library commonly known as?",
+options:["STL","SDL","STD","TPL"],
+answer:"STL",
+difficulty:"Hard"
+},
+{
+question:"Which STL container stores elements in dynamic arrays?",
+options:["vector","map","set","queue"],
+answer:"vector",
+difficulty:"Hard"
+},
+{
+question:"Which STL container stores key-value pairs?",
+options:["map","vector","stack","queue"],
+answer:"map",
+difficulty:"Hard"
+},
+{
+question:"Which keyword declares a function template?",
+options:["template","generic","typename","class"],
+answer:"template",
+difficulty:"Hard"
+},
+{
+question:"Which file stream class is used to read from a file?",
+options:["ifstream","ofstream","fstream","filestream"],
+answer:"ifstream",
+difficulty:"Hard"
+},
+{
+question:"Which file stream class is used to write to a file?",
+options:["ofstream","ifstream","fstream","ostream"],
+answer:"ofstream",
+difficulty:"Hard"
+},
+{
+question:"Which C++ feature automatically manages dynamic memory to prevent leaks?",
+options:["Smart Pointers","Raw Pointers","Macros","Goto"],
+answer:"Smart Pointers",
+difficulty:"Hard"
+},
+],
+SQL: [
+
+/* ---------- Easy (1–5) ---------- */
+
+{
+question:"What does SQL stand for?",
+options:[
+"Structured Query Language",
+"Simple Query Language",
+"Standard Question Language",
+"Structured Question Logic"
+],
+answer:"Structured Query Language",
+difficulty:"Easy"
+},
+{
+question:"Which SQL command retrieves data from a table?",
+options:["SELECT","INSERT","UPDATE","DELETE"],
+answer:"SELECT",
+difficulty:"Easy"
+},
+{
+question:"Which SQL command adds new records?",
+options:["INSERT","SELECT","UPDATE","CREATE"],
+answer:"INSERT",
+difficulty:"Easy"
+},
+{
+question:"Which SQL command modifies existing records?",
+options:["UPDATE","ALTER","CHANGE","MODIFY"],
+answer:"UPDATE",
+difficulty:"Easy"
+},
+{
+question:"Which SQL command removes records from a table?",
+options:["DELETE","DROP","REMOVE","CLEAR"],
+answer:"DELETE",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (6–10) ---------- */
+
+{
+question:"Which SQL clause filters records?",
+options:["WHERE","ORDER BY","GROUP BY","HAVING"],
+answer:"WHERE",
+difficulty:"Medium"
+},
+{
+question:"Which SQL clause sorts query results?",
+options:["ORDER BY","GROUP BY","SORT","ARRANGE"],
+answer:"ORDER BY",
+difficulty:"Medium"
+},
+{
+question:"Which SQL function returns the number of rows?",
+options:["COUNT()","SUM()","AVG()","TOTAL()"],
+answer:"COUNT()",
+difficulty:"Medium"
+},
+{
+question:"Which SQL function returns the highest value?",
+options:["MAX()","TOP()","HIGH()","UPPER()"],
+answer:"MAX()",
+difficulty:"Medium"
+},
+{
+question:"Which SQL function returns the lowest value?",
+options:["MIN()","LOW()","BOTTOM()","LEAST()"],
+answer:"MIN()",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (11–15) ---------- */
+
+{
+question:"Which SQL statement creates a new table?",
+options:["CREATE TABLE","NEW TABLE","MAKE TABLE","ADD TABLE"],
+answer:"CREATE TABLE",
+difficulty:"Hard"
+},
+{
+question:"Which SQL statement removes an entire table?",
+options:["DROP TABLE","DELETE TABLE","REMOVE TABLE","CLEAR TABLE"],
+answer:"DROP TABLE",
+difficulty:"Hard"
+},
+{
+question:"Which JOIN returns matching rows from both tables?",
+options:["INNER JOIN","LEFT JOIN","RIGHT JOIN","FULL JOIN"],
+answer:"INNER JOIN",
+difficulty:"Hard"
+},
+{
+question:"Which key uniquely identifies each row in a table?",
+options:["Primary Key","Foreign Key","Candidate Key","Unique Key"],
+answer:"Primary Key",
+difficulty:"Hard"
+},
+{
+question:"Which key creates a relationship between two tables?",
+options:["Foreign Key","Primary Key","Composite Key","Unique Key"],
+answer:"Foreign Key",
+difficulty:"Hard"
+},
+/* ---------- Medium (16–20) ---------- */
+
+{
+question:"Which SQL JOIN returns all records from the left table and matching records from the right table?",
+options:["LEFT JOIN","RIGHT JOIN","INNER JOIN","FULL JOIN"],
+answer:"LEFT JOIN",
+difficulty:"Medium"
+},
+{
+question:"Which SQL JOIN returns all records from the right table and matching records from the left table?",
+options:["RIGHT JOIN","LEFT JOIN","INNER JOIN","CROSS JOIN"],
+answer:"RIGHT JOIN",
+difficulty:"Medium"
+},
+{
+question:"Which clause groups rows with the same values?",
+options:["GROUP BY","ORDER BY","WHERE","HAVING"],
+answer:"GROUP BY",
+difficulty:"Medium"
+},
+{
+question:"Which clause filters grouped records?",
+options:["HAVING","WHERE","ORDER BY","DISTINCT"],
+answer:"HAVING",
+difficulty:"Medium"
+},
+{
+question:"Which keyword removes duplicate rows from query results?",
+options:["DISTINCT","UNIQUE","REMOVE","FILTER"],
+answer:"DISTINCT",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (21–30) ---------- */
+
+{
+question:"Which operator is used to search for a pattern in SQL?",
+options:["LIKE","MATCH","SEARCH","FIND"],
+answer:"LIKE",
+difficulty:"Hard"
+},
+{
+question:"Which SQL operator selects values within a specified range?",
+options:["BETWEEN","IN","RANGE","WITHIN"],
+answer:"BETWEEN",
+difficulty:"Hard"
+},
+{
+question:"Which SQL operator checks whether a value matches any value in a list?",
+options:["IN","ANY","EXISTS","LIKE"],
+answer:"IN",
+difficulty:"Hard"
+},
+{
+question:"Which SQL keyword is used to test for missing values?",
+options:["NULL","EMPTY","NONE","VOID"],
+answer:"NULL",
+difficulty:"Hard"
+},
+{
+question:"Which statement is used to add a new column to an existing table?",
+options:["ALTER TABLE","UPDATE TABLE","MODIFY TABLE","CHANGE TABLE"],
+answer:"ALTER TABLE",
+difficulty:"Hard"
+},
+{
+question:"Which SQL statement removes all rows from a table but keeps the table structure?",
+options:["TRUNCATE TABLE","DROP TABLE","DELETE TABLE","REMOVE TABLE"],
+answer:"TRUNCATE TABLE",
+difficulty:"Hard"
+},
+{
+question:"Which SQL operator combines the results of two SELECT statements and removes duplicates?",
+options:["UNION","JOIN","MERGE","COMBINE"],
+answer:"UNION",
+difficulty:"Hard"
+},
+{
+question:"What is the main purpose of an index in SQL?",
+options:[
+"To speed up data retrieval",
+"To store backups",
+"To encrypt data",
+"To delete duplicate rows"
+],
+answer:"To speed up data retrieval",
+difficulty:"Hard"
+},
+{
+question:"What is a SQL View?",
+options:[
+"A virtual table based on a query",
+"A physical database",
+"A backup file",
+"A programming language"
+],
+answer:"A virtual table based on a query",
+difficulty:"Hard"
+},
+{
+question:"Which SQL constraint prevents duplicate values in a column?",
+options:["UNIQUE","PRIMARY KEY","CHECK","DEFAULT"],
+answer:"UNIQUE",
+difficulty:"Hard"
+},
+],
+NodeJS: [
+
+/* ---------- Easy (1–5) ---------- */
+
+{
+question:"What is Node.js?",
+options:[
+"A JavaScript runtime",
+"A database",
+"A web browser",
+"An operating system"
+],
+answer:"A JavaScript runtime",
+difficulty:"Easy"
+},
+{
+question:"Which JavaScript engine powers Node.js?",
+options:["V8","SpiderMonkey","JavaScriptCore","Chakra"],
+answer:"V8",
+difficulty:"Easy"
+},
+{
+question:"Which command initializes a new Node.js project?",
+options:["npm init","node init","npm start","node install"],
+answer:"npm init",
+difficulty:"Easy"
+},
+{
+question:"Which file stores project information in Node.js?",
+options:["package.json","index.js","server.js","node.json"],
+answer:"package.json",
+difficulty:"Easy"
+},
+{
+question:"Which command installs project dependencies?",
+options:["npm install","node install","npm update","node modules"],
+answer:"npm install",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (6–10) ---------- */
+
+{
+question:"Which object is used to import modules in CommonJS?",
+options:["require()","import","include","using"],
+answer:"require()",
+difficulty:"Medium"
+},
+{
+question:"Which built-in module creates an HTTP server?",
+options:["http","server","https","net"],
+answer:"http",
+difficulty:"Medium"
+},
+{
+question:"Which method starts an HTTP server?",
+options:["listen()","start()","run()","execute()"],
+answer:"listen()",
+difficulty:"Medium"
+},
+{
+question:"Which object represents incoming request data?",
+options:["req","request","res","response"],
+answer:"req",
+difficulty:"Medium"
+},
+{
+question:"Which object is used to send data back to the client?",
+options:["res","req","request","client"],
+answer:"res",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (11–15) ---------- */
+
+{
+question:"Node.js mainly follows which programming model?",
+options:[
+"Event-driven",
+"Procedural",
+"Functional only",
+"Object-based only"
+],
+answer:"Event-driven",
+difficulty:"Hard"
+},
+{
+question:"Which module is used to work with the file system?",
+options:["fs","file","path","os"],
+answer:"fs",
+difficulty:"Hard"
+},
+{
+question:"Which module provides utilities for working with file paths?",
+options:["path","fs","http","url"],
+answer:"path",
+difficulty:"Hard"
+},
+{
+question:"Which module provides information about the operating system?",
+options:["os","system","env","process"],
+answer:"os",
+difficulty:"Hard"
+},
+{
+question:"Which global object provides information about the current Node.js process?",
+options:["process","global","console","module"],
+answer:"process",
+difficulty:"Hard"
+},
+/* ---------- Medium (16–20) ---------- */
+
+{
+question:"Which framework is most commonly used with Node.js for building web applications?",
+options:["Express.js","React","Angular","Vue"],
+answer:"Express.js",
+difficulty:"Medium"
+},
+{
+question:"What is middleware in Express.js?",
+options:[
+"A function that processes requests and responses",
+"A database",
+"A JavaScript engine",
+"A package manager"
+],
+answer:"A function that processes requests and responses",
+difficulty:"Medium"
+},
+{
+question:"Which method is used to define a GET route in Express?",
+options:["app.get()","app.post()","app.use()","app.route()"],
+answer:"app.get()",
+difficulty:"Medium"
+},
+{
+question:"What does npm stand for?",
+options:[
+"Node Package Manager",
+"New Project Manager",
+"Network Package Module",
+"Node Program Manager"
+],
+answer:"Node Package Manager",
+difficulty:"Medium"
+},
+{
+question:"Which class is used to create and handle custom events in Node.js?",
+options:["EventEmitter","EventHandler","Emitter","EventLoop"],
+answer:"EventEmitter",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (21–30) ---------- */
+
+{
+question:"Which Node.js feature allows reading or writing data piece by piece?",
+options:["Streams","Buffers","Promises","Events"],
+answer:"Streams",
+difficulty:"Hard"
+},
+{
+question:"What is a Buffer in Node.js?",
+options:[
+"A temporary storage area for binary data",
+"A database",
+"A cache file",
+"A routing method"
+],
+answer:"A temporary storage area for binary data",
+difficulty:"Hard"
+},
+{
+question:"Which keyword is used to wait for a Promise to resolve?",
+options:["await","async","wait","promise"],
+answer:"await",
+difficulty:"Hard"
+},
+{
+question:"Which keyword is required to use await inside a function?",
+options:["async","await","promise","defer"],
+answer:"async",
+difficulty:"Hard"
+},
+{
+question:"What is the purpose of Promises in Node.js?",
+options:[
+"To handle asynchronous operations",
+"To create databases",
+"To style web pages",
+"To compile JavaScript"
+],
+answer:"To handle asynchronous operations",
+difficulty:"Hard"
+},
+{
+question:"Which programming pattern was commonly used before Promises?",
+options:["Callbacks","Threads","Loops","Classes"],
+answer:"Callbacks",
+difficulty:"Hard"
+},
+{
+question:"Where are environment variables commonly stored in a Node.js project?",
+options:[".env","config.json","package.json","node_modules"],
+answer:".env",
+difficulty:"Hard"
+},
+{
+question:"A REST API primarily communicates using which protocol?",
+options:["HTTP","FTP","SMTP","SSH"],
+answer:"HTTP",
+difficulty:"Hard"
+},
+{
+question:"What is CORS mainly used for?",
+options:[
+"Allowing controlled access to resources from different origins",
+"Compressing files",
+"Managing databases",
+"Encrypting passwords"
+],
+answer:"Allowing controlled access to resources from different origins",
+difficulty:"Hard"
+},
+{
+question:"Which module can be used to create child processes and utilize multiple CPU cores?",
+options:["cluster","http","events","url"],
+answer:"cluster",
+difficulty:"Hard"
+}
+
+],
+DataStructures: [
+
+/* ---------- Easy (1–5) ---------- */
+
+{
+question:"What is a data structure?",
+options:[
+"A way to organize and store data",
+"A programming language",
+"An operating system",
+"A database"
+],
+answer:"A way to organize and store data",
+difficulty:"Easy"
+},
+{
+question:"Which data structure follows the FIFO principle?",
+options:["Queue","Stack","Tree","Graph"],
+answer:"Queue",
+difficulty:"Easy"
+},
+{
+question:"Which data structure follows the LIFO principle?",
+options:["Stack","Queue","Array","Linked List"],
+answer:"Stack",
+difficulty:"Easy"
+},
+{
+question:"Which data structure stores elements in contiguous memory locations?",
+options:["Array","Linked List","Tree","Graph"],
+answer:"Array",
+difficulty:"Easy"
+},
+{
+question:"Which data structure consists of nodes connected by links?",
+options:["Linked List","Array","Stack","Queue"],
+answer:"Linked List",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (6–10) ---------- */
+
+{
+question:"Which operation adds an element to the top of a stack?",
+options:["Push","Pop","Insert","Append"],
+answer:"Push",
+difficulty:"Medium"
+},
+{
+question:"Which operation removes the top element from a stack?",
+options:["Pop","Push","Delete","Remove"],
+answer:"Pop",
+difficulty:"Medium"
+},
+{
+question:"Which operation inserts an element into a queue?",
+options:["Enqueue","Dequeue","Push","Insert"],
+answer:"Enqueue",
+difficulty:"Medium"
+},
+{
+question:"Which operation removes an element from a queue?",
+options:["Dequeue","Enqueue","Pop","Delete"],
+answer:"Dequeue",
+difficulty:"Medium"
+},
+{
+question:"Which data structure is mainly used to represent hierarchical data?",
+options:["Tree","Array","Queue","Stack"],
+answer:"Tree",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (11–15) ---------- */
+
+{
+question:"Which tree has at most two children for each node?",
+options:["Binary Tree","AVL Tree","B-Tree","Trie"],
+answer:"Binary Tree",
+difficulty:"Hard"
+},
+{
+question:"Which data structure is commonly used to represent networks?",
+options:["Graph","Stack","Queue","Array"],
+answer:"Graph",
+difficulty:"Hard"
+},
+{
+question:"Which search algorithm works efficiently on a sorted array?",
+options:["Binary Search","Linear Search","Depth First Search","Breadth First Search"],
+answer:"Binary Search",
+difficulty:"Hard"
+},
+{
+question:"What is the time complexity of Binary Search?",
+options:["O(log n)","O(n)","O(n²)","O(1)"],
+answer:"O(log n)",
+difficulty:"Hard"
+},
+{
+question:"Which traversal visits the root node before its subtrees?",
+options:["Preorder","Inorder","Postorder","Level Order"],
+answer:"Preorder",
+difficulty:"Hard"
+},
+/* ---------- Medium (16–20) ---------- */
+
+{
+question:"Which traversal visits the left subtree, root, then right subtree?",
+options:["Inorder","Preorder","Postorder","Level Order"],
+answer:"Inorder",
+difficulty:"Medium"
+},
+{
+question:"Which traversal visits the left subtree, right subtree, then root?",
+options:["Postorder","Inorder","Preorder","Level Order"],
+answer:"Postorder",
+difficulty:"Medium"
+},
+{
+question:"Which graph traversal uses a queue?",
+options:[
+"Breadth-First Search (BFS)",
+"Depth-First Search (DFS)",
+"Binary Search",
+"Linear Search"
+],
+answer:"Breadth-First Search (BFS)",
+difficulty:"Medium"
+},
+{
+question:"Which graph traversal uses a stack or recursion?",
+options:[
+"Depth-First Search (DFS)",
+"Breadth-First Search (BFS)",
+"Binary Search",
+"Bubble Sort"
+],
+answer:"Depth-First Search (DFS)",
+difficulty:"Medium"
+},
+{
+question:"Which data structure stores elements based on priority?",
+options:[
+"Priority Queue",
+"Stack",
+"Array",
+"Linked List"
+],
+answer:"Priority Queue",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (21–30) ---------- */
+
+{
+question:"Which complete binary tree satisfies the heap property?",
+options:["Heap","AVL Tree","Trie","Graph"],
+answer:"Heap",
+difficulty:"Hard"
+},
+{
+question:"Which data structure provides average O(1) search time?",
+options:[
+"Hash Table",
+"Linked List",
+"Array",
+"Binary Tree"
+],
+answer:"Hash Table",
+difficulty:"Hard"
+},
+{
+question:"What is a collision in a hash table?",
+options:[
+"Two keys map to the same index",
+"Deleting a key",
+"Sorting elements",
+"Searching an array"
+],
+answer:"Two keys map to the same index",
+difficulty:"Hard"
+},
+{
+question:"Which self-balancing binary search tree maintains height balance?",
+options:["AVL Tree","Heap","Trie","Graph"],
+answer:"AVL Tree",
+difficulty:"Hard"
+},
+{
+question:"Recursion is a technique where?",
+options:[
+"A function calls itself",
+"A loop repeats forever",
+"An array grows automatically",
+"A queue becomes full"
+],
+answer:"A function calls itself",
+difficulty:"Hard"
+},
+{
+question:"Big-O notation is used to measure?",
+options:[
+"Algorithm efficiency",
+"Program size",
+"Memory location",
+"Network speed"
+],
+answer:"Algorithm efficiency",
+difficulty:"Hard"
+},
+{
+question:"Which sorting algorithm follows the Divide and Conquer approach?",
+options:[
+"Merge Sort",
+"Bubble Sort",
+"Selection Sort",
+"Insertion Sort"
+],
+answer:"Merge Sort",
+difficulty:"Hard"
+},
+{
+question:"Which sorting algorithm selects a pivot element?",
+options:[
+"Quick Sort",
+"Merge Sort",
+"Bubble Sort",
+"Heap Sort"
+],
+answer:"Quick Sort",
+difficulty:"Hard"
+},
+{
+question:"Which queue connects the last position back to the first?",
+options:[
+"Circular Queue",
+"Priority Queue",
+"Simple Queue",
+"Deque"
+],
+answer:"Circular Queue",
+difficulty:"Hard"
+},
+{
+question:"Which linked list allows traversal in both forward and backward directions?",
+options:[
+"Doubly Linked List",
+"Singly Linked List",
+"Circular Queue",
+"Binary Tree"
+],
+answer:"Doubly Linked List",
+difficulty:"Hard"
+}
+
+],
+ArtificialIntelligence: [
+
+/* ---------- Easy (1–5) ---------- */
+
+{
+question:"What does AI stand for?",
+options:[
+"Artificial Intelligence",
+"Automatic Internet",
+"Advanced Interface",
+"Artificial Internet"
+],
+answer:"Artificial Intelligence",
+difficulty:"Easy"
+},
+{
+question:"Artificial Intelligence is mainly used to?",
+options:[
+"Make computers perform intelligent tasks",
+"Build roads",
+"Manufacture hardware",
+"Increase internet speed"
+],
+answer:"Make computers perform intelligent tasks",
+difficulty:"Easy"
+},
+{
+question:"Which company developed ChatGPT?",
+options:["OpenAI","Google","Microsoft","Apple"],
+answer:"OpenAI",
+difficulty:"Easy"
+},
+{
+question:"Which field is closely related to AI?",
+options:[
+"Machine Learning",
+"Carpentry",
+"Civil Engineering",
+"Accounting"
+],
+answer:"Machine Learning",
+difficulty:"Easy"
+},
+{
+question:"Which AI assistant is developed by Google?",
+options:["Gemini","Siri","Alexa","Cortana"],
+answer:"Gemini",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (6–10) ---------- */
+
+{
+question:"Machine Learning is a subset of?",
+options:[
+"Artificial Intelligence",
+"Cyber Security",
+"Cloud Computing",
+"Networking"
+],
+answer:"Artificial Intelligence",
+difficulty:"Medium"
+},
+{
+question:"Which type of learning uses labeled data?",
+options:[
+"Supervised Learning",
+"Unsupervised Learning",
+"Reinforcement Learning",
+"Deep Learning"
+],
+answer:"Supervised Learning",
+difficulty:"Medium"
+},
+{
+question:"Which type of learning finds hidden patterns without labels?",
+options:[
+"Unsupervised Learning",
+"Supervised Learning",
+"Reinforcement Learning",
+"Transfer Learning"
+],
+answer:"Unsupervised Learning",
+difficulty:"Medium"
+},
+{
+question:"Which learning method uses rewards and penalties?",
+options:[
+"Reinforcement Learning",
+"Supervised Learning",
+"Unsupervised Learning",
+"Linear Learning"
+],
+answer:"Reinforcement Learning",
+difficulty:"Medium"
+},
+{
+question:"Which programming language is most widely used for AI?",
+options:["Python","HTML","CSS","PHP"],
+answer:"Python",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (11–15) ---------- */
+
+{
+question:"Deep Learning is mainly based on?",
+options:[
+"Artificial Neural Networks",
+"Linked Lists",
+"Binary Trees",
+"Hash Tables"
+],
+answer:"Artificial Neural Networks",
+difficulty:"Hard"
+},
+{
+question:"What does NLP stand for?",
+options:[
+"Natural Language Processing",
+"Neural Learning Process",
+"Network Logic Protocol",
+"Natural Logic Program"
+],
+answer:"Natural Language Processing",
+difficulty:"Hard"
+},
+{
+question:"Computer Vision enables computers to?",
+options:[
+"Understand images and videos",
+"Increase internet speed",
+"Store databases",
+"Write operating systems"
+],
+answer:"Understand images and videos",
+difficulty:"Hard"
+},
+{
+question:"Which algorithm is commonly used for classification problems?",
+options:[
+"Decision Tree",
+"Bubble Sort",
+"Binary Search",
+"Quick Sort"
+],
+answer:"Decision Tree",
+difficulty:"Hard"
+},
+{
+question:"What is the primary goal of AI?",
+options:[
+"Simulate human intelligence",
+"Replace electricity",
+"Build processors",
+"Design websites"
+],
+answer:"Simulate human intelligence",
+difficulty:"Hard"
+},
+/* ---------- Medium (16–20) ---------- */
+
+{
+question:"What is Generative AI mainly used for?",
+options:[
+"Creating new content",
+"Deleting files",
+"Managing databases",
+"Increasing internet speed"
+],
+answer:"Creating new content",
+difficulty:"Medium"
+},
+{
+question:"What does LLM stand for in AI?",
+options:[
+"Large Language Model",
+"Logical Learning Machine",
+"Linear Language Module",
+"Large Logic Model"
+],
+answer:"Large Language Model",
+difficulty:"Medium"
+},
+{
+question:"Which open-source library is widely used for deep learning?",
+options:[
+"TensorFlow",
+"Bootstrap",
+"jQuery",
+"NumPy"
+],
+answer:"TensorFlow",
+difficulty:"Medium"
+},
+{
+question:"Which deep learning framework was developed by Meta?",
+options:[
+"PyTorch",
+"TensorFlow",
+"Keras",
+"OpenCV"
+],
+answer:"PyTorch",
+difficulty:"Medium"
+},
+{
+question:"Training data is used to?",
+options:[
+"Teach an AI model",
+"Delete a model",
+"Compress files",
+"Create databases"
+],
+answer:"Teach an AI model",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (21–30) ---------- */
+
+{
+question:"Overfitting occurs when a model?",
+options:[
+"Memorizes training data and performs poorly on new data",
+"Runs too fast",
+"Has too little data",
+"Uses too much memory"
+],
+answer:"Memorizes training data and performs poorly on new data",
+difficulty:"Hard"
+},
+{
+question:"Underfitting occurs when a model?",
+options:[
+"Fails to learn important patterns",
+"Learns too much",
+"Uses too many GPUs",
+"Has perfect accuracy"
+],
+answer:"Fails to learn important patterns",
+difficulty:"Hard"
+},
+{
+question:"Feature engineering is the process of?",
+options:[
+"Selecting and transforming input data for a model",
+"Building computer hardware",
+"Writing operating systems",
+"Creating databases"
+],
+answer:"Selecting and transforming input data for a model",
+difficulty:"Hard"
+},
+{
+question:"AI bias refers to?",
+options:[
+"Unfair or skewed predictions caused by data or algorithms",
+"Fast model training",
+"Database optimization",
+"Network security"
+],
+answer:"Unfair or skewed predictions caused by data or algorithms",
+difficulty:"Hard"
+},
+{
+question:"Why is AI ethics important?",
+options:[
+"To ensure AI is fair, safe, and responsible",
+"To increase internet speed",
+"To replace programming",
+"To reduce storage space"
+],
+answer:"To ensure AI is fair, safe, and responsible",
+difficulty:"Hard"
+},
+{
+question:"Robotics combines AI with?",
+options:[
+"Physical machines",
+"Databases",
+"Web browsers",
+"Spreadsheets"
+],
+answer:"Physical machines",
+difficulty:"Hard"
+},
+{
+question:"Recommendation systems are commonly used by?",
+options:[
+"E-commerce and streaming platforms",
+"Printers",
+"Compilers",
+"Operating systems"
+],
+answer:"E-commerce and streaming platforms",
+difficulty:"Hard"
+},
+{
+question:"An AI hallucination is when an AI model?",
+options:[
+"Generates incorrect or fabricated information confidently",
+"Stops working completely",
+"Runs out of memory",
+"Deletes its training data"
+],
+answer:"Generates incorrect or fabricated information confidently",
+difficulty:"Hard"
+},
+{
+question:"Explainable AI (XAI) focuses on?",
+options:[
+"Making AI decisions understandable to humans",
+"Building faster processors",
+"Creating websites",
+"Managing cloud storage"
+],
+answer:"Making AI decisions understandable to humans",
+difficulty:"Hard"
+},
+{
+question:"Which of the following is an example of an AI application?",
+options:[
+"Voice assistants",
+"Paper notebooks",
+"Mechanical typewriters",
+"Analog clocks"
+],
+answer:"Voice assistants",
+difficulty:"Hard"
+},
+],
+ComputerFundamentals: [
+
+/* ---------- Easy (1–5) ---------- */
+
+{
+question:"What does CPU stand for?",
+options:[
+"Central Processing Unit",
+"Computer Processing Unit",
+"Central Program Unit",
+"Control Processing Unit"
+],
+answer:"Central Processing Unit",
+difficulty:"Easy"
+},
+{
+question:"Which device is known as the brain of the computer?",
+options:["CPU","RAM","Hard Disk","Monitor"],
+answer:"CPU",
+difficulty:"Easy"
+},
+{
+question:"Which device is used to display output?",
+options:["Monitor","Keyboard","Mouse","Scanner"],
+answer:"Monitor",
+difficulty:"Easy"
+},
+{
+question:"Which device is used to enter text into a computer?",
+options:["Keyboard","Printer","Monitor","Speaker"],
+answer:"Keyboard",
+difficulty:"Easy"
+},
+{
+question:"Which storage device permanently stores data?",
+options:["Hard Disk","RAM","Cache","Register"],
+answer:"Hard Disk",
+difficulty:"Easy"
+},
+
+/* ---------- Medium (6–10) ---------- */
+
+{
+question:"What does RAM stand for?",
+options:[
+"Random Access Memory",
+"Read Access Memory",
+"Rapid Access Module",
+"Random Allocation Memory"
+],
+answer:"Random Access Memory",
+difficulty:"Medium"
+},
+{
+question:"Which memory is volatile?",
+options:["RAM","ROM","Hard Disk","SSD"],
+answer:"RAM",
+difficulty:"Medium"
+},
+{
+question:"What does ROM stand for?",
+options:[
+"Read Only Memory",
+"Random Only Memory",
+"Read Operating Memory",
+"Remote Output Memory"
+],
+answer:"Read Only Memory",
+difficulty:"Medium"
+},
+{
+question:"Which software manages computer hardware and software resources?",
+options:[
+"Operating System",
+"Web Browser",
+"Compiler",
+"Text Editor"
+],
+answer:"Operating System",
+difficulty:"Medium"
+},
+{
+question:"Which operating system is open source?",
+options:["Linux","Windows","macOS","iOS"],
+answer:"Linux",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (11–15) ---------- */
+
+{
+question:"Which type of software translates source code into machine code?",
+options:[
+"Compiler",
+"Browser",
+"Debugger",
+"Spreadsheet"
+],
+answer:"Compiler",
+difficulty:"Hard"
+},
+{
+question:"What is BIOS mainly used for?",
+options:[
+"Initializing hardware during startup",
+"Browsing the internet",
+"Editing documents",
+"Running games"
+],
+answer:"Initializing hardware during startup",
+difficulty:"Hard"
+},
+{
+question:"Which memory is the fastest in a computer?",
+options:[
+"Cache Memory",
+"RAM",
+"Hard Disk",
+"SSD"
+],
+answer:"Cache Memory",
+difficulty:"Hard"
+},
+{
+question:"Which number system is used internally by computers?",
+options:[
+"Binary",
+"Decimal",
+"Octal",
+"Hexadecimal"
+],
+answer:"Binary",
+difficulty:"Hard"
+},
+{
+question:"What is firmware?",
+options:[
+"Software permanently stored in hardware",
+"An antivirus",
+"A web browser",
+"A database"
+],
+answer:"Software permanently stored in hardware",
+difficulty:"Hard"
+},
+/* ---------- Medium (16–20) ---------- */
+
+{
+question:"Which device is used to print documents on paper?",
+options:["Printer","Monitor","Scanner","Speaker"],
+answer:"Printer",
+difficulty:"Medium"
+},
+{
+question:"Which component connects all parts of a computer together?",
+options:["Motherboard","CPU","RAM","Hard Disk"],
+answer:"Motherboard",
+difficulty:"Medium"
+},
+{
+question:"What does ALU stand for?",
+options:[
+"Arithmetic Logic Unit",
+"Advanced Logic Unit",
+"Automatic Logic Unit",
+"Arithmetic Link Unit"
+],
+answer:"Arithmetic Logic Unit",
+difficulty:"Medium"
+},
+{
+question:"Which part of the CPU controls and coordinates all operations?",
+options:[
+"Control Unit",
+"ALU",
+"RAM",
+"Cache"
+],
+answer:"Control Unit",
+difficulty:"Medium"
+},
+{
+question:"Which device is mainly used for high-quality graphics processing?",
+options:["GPU","CPU","RAM","ROM"],
+answer:"GPU",
+difficulty:"Medium"
+},
+
+/* ---------- Hard (21–30) ---------- */
+
+{
+question:"Which storage device is generally faster?",
+options:["SSD","HDD","DVD","USB Drive"],
+answer:"SSD",
+difficulty:"Hard"
+},
+{
+question:"Primary memory includes?",
+options:["RAM and ROM","Hard Disk","SSD","DVD"],
+answer:"RAM and ROM",
+difficulty:"Hard"
+},
+{
+question:"Secondary storage is mainly used for?",
+options:[
+"Permanent data storage",
+"Temporary processing",
+"Executing instructions",
+"Cache storage"
+],
+answer:"Permanent data storage",
+difficulty:"Hard"
+},
+{
+question:"What is booting?",
+options:[
+"The process of starting a computer",
+"Installing software",
+"Formatting a disk",
+"Connecting to the internet"
+],
+answer:"The process of starting a computer",
+difficulty:"Hard"
+},
+{
+question:"Which file system is commonly used by Windows?",
+options:["NTFS","EXT4","HFS+","APFS"],
+answer:"NTFS",
+difficulty:"Hard"
+},
+{
+question:"What is virtual memory?",
+options:[
+"Disk space used as an extension of RAM",
+"A cloud storage service",
+"A graphics memory",
+"A CPU register"
+],
+answer:"Disk space used as an extension of RAM",
+difficulty:"Hard"
+},
+{
+question:"Which USB version generally provides the highest data transfer speed?",
+options:["USB 3.2","USB 2.0","USB 1.1","USB 1.0"],
+answer:"USB 3.2",
+difficulty:"Hard"
+},
+{
+question:"Cloud computing allows users to?",
+options:[
+"Access computing resources over the internet",
+"Repair hardware",
+"Manufacture processors",
+"Build motherboards"
+],
+answer:"Access computing resources over the internet",
+difficulty:"Hard"
+},
+{
+question:"The fifth generation of computers is mainly associated with?",
+options:[
+"Artificial Intelligence",
+"Vacuum Tubes",
+"Transistors",
+"Integrated Circuits"
+],
+answer:"Artificial Intelligence",
+difficulty:"Hard"
+},
+{
+question:"Which port is commonly used to connect a monitor to a computer?",
+options:["HDMI","RJ-45","USB","PS/2"],
+answer:"HDMI",
+difficulty:"Hard"
+}
+],
+};
+
+let questions=[];
+let currentQuestion=0;
+let score=0;
+let timeLeft=15;
+let timer;
+
+function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+}
+
+function playSound(freq){
+    const audioContext=
+    new(window.AudioContext||
+    window.webkitAudioContext)();
+
+    const oscillator=
+    audioContext.createOscillator();
+
+    oscillator.type="sine";
+    oscillator.frequency.value=freq;
+
+    oscillator.connect(audioContext.destination);
+
+    oscillator.start();
+
+    setTimeout(()=>{
+        oscillator.stop();
+    },120);
+}
+
+function startQuiz(){
+
+const category=
+document.getElementById("category").value;
+
+const difficulty=
+document.getElementById("difficulty").value;
+
+questions=
+quizData[category]
+.filter(q=>q.difficulty===difficulty);
+
+if(questions.length===0){
+alert("No questions found");
+return;
+}
+
+shuffle(questions);
+
+currentQuestion=0;
+score=0;
+
+document
+.getElementById("startScreen")
+.classList.add("hide");
+
+document
+.getElementById("quizScreen")
+.classList.remove("hide");
+
+showQuestion();
+}
+
+function showQuestion(){
+
+clearInterval(timer);
+
+const q=questions[currentQuestion];
+
+document.getElementById("question")
+.textContent=q.question;
+
+document.getElementById("questionCount")
+.textContent=
+`Question ${currentQuestion+1}/${questions.length}`;
+
+document.getElementById("scoreText")
+.textContent=`Score: ${score}`;
+
+document.getElementById("nextBtn")
+.classList.add("hide");
+
+const answers=
+document.getElementById("answers");
+
+answers.innerHTML="";
+
+shuffle(q.options);
+
+q.options.forEach(option=>{
+
+const btn=
+document.createElement("button");
+
+btn.className="option";
+btn.textContent=option;
+
+btn.onclick=()=>selectAnswer(btn,q.answer);
+
+answers.appendChild(btn);
+
+});
+
+updateProgress();
+startTimer();
+}
+
+function selectAnswer(button,correctAnswer){
+
+clearInterval(timer);
+
+const buttons=
+document.querySelectorAll(".option");
+
+buttons.forEach(btn=>{
+
+btn.disabled=true;
+
+if(btn.textContent===correctAnswer){
+btn.classList.add("correct");
+}
+
+});
+
+if(button.textContent===correctAnswer){
+
+score++;
+
+playSound(800);
+
+document.getElementById("scoreText")
+.textContent=`Score: ${score}`;
+
+}else{
+
+button.classList.add("wrong");
+
+playSound(250);
+}
+
+document
+.getElementById("nextBtn")
+.classList.remove("hide");
+}
+
+function startTimer(){
+
+timeLeft=15;
+
+document.getElementById("timer")
+.textContent=`Time: ${timeLeft}s`;
+
+timer=setInterval(()=>{
+
+timeLeft--;
+
+document.getElementById("timer")
+.textContent=`Time: ${timeLeft}s`;
+
+if(timeLeft<=0){
+
+clearInterval(timer);
+
+document
+.getElementById("nextBtn")
+.classList.remove("hide");
+
+const buttons=
+document.querySelectorAll(".option");
+
+buttons.forEach(btn=>{
+
+btn.disabled=true;
+
+if(btn.textContent===
+questions[currentQuestion].answer){
+btn.classList.add("correct");
+}
+
+});
+
+}
+
+},1000);
+
+}
+
+document
+.getElementById("nextBtn")
+.addEventListener("click",()=>{
+
+currentQuestion++;
+
+if(currentQuestion<questions.length){
+
+showQuestion();
+
+}else{
+
+finishQuiz();
+
+}
+
+});
+
+function updateProgress(){
+
+const progress=
+((currentQuestion+1)/
+questions.length)*100;
+
+document
+.getElementById("progressBar")
+.style.width=
+progress+"%";
+
+}
+
+function finishQuiz(){
+
+document
+.getElementById("quizScreen")
+.classList.add("hide");
+
+document
+.getElementById("resultScreen")
+.classList.remove("hide");
+
+document
+.getElementById("finalScore")
+.textContent=
+`You scored ${score} out of ${questions.length}`;
+
+saveLeaderboard();
+displayLeaderboard();
+}
+
+function saveLeaderboard(){
+
+const player=
+document.getElementById("playerName")
+.value || "Anonymous";
+
+let leaderboard=
+JSON.parse(
+localStorage.getItem("leaderboard")
+)||[];
+
+leaderboard.push({
+name:player,
+score:score
+});
+
+leaderboard.sort(
+(a,b)=>b.score-a.score
+);
+
+leaderboard=
+leaderboard.slice(0,10);
+
+localStorage.setItem(
+"leaderboard",
+JSON.stringify(leaderboard)
+);
+}
+
+function displayLeaderboard(){
+
+let leaderboard=
+JSON.parse(
+localStorage.getItem("leaderboard")
+)||[];
+
+let html="";
+
+leaderboard.forEach((player,index)=>{
+
+html+=`
+<p>
+${index+1}. ${player.name}
+- ${player.score}
+</p>
+`;
+
+});
+
+document
+.getElementById("leaderboard")
+.innerHTML=html;
+}
+
+displayLeaderboard();
+
+const themeBtn=
+document.getElementById("themeBtn");
+
+if(localStorage.getItem("theme")==="dark"){
+document.body.classList.add("dark");
+}
+
+themeBtn.addEventListener("click",()=>{
+
+document.body.classList.toggle("dark");
+
+localStorage.setItem(
+"theme",
+document.body.classList.contains("dark")
+?"dark":"light"
+);
+
+});
+
+</script>
+
+</body>
+</html>
